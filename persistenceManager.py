@@ -35,6 +35,7 @@ class PersistenceManager:
         """
         pass
 
+    
     def write_data_to_file(self, lsn, pageid, data):
         try:
             f = open('pages/page_{}.txt'.format(pageid), "w")
