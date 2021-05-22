@@ -9,11 +9,12 @@ class WrongPageIdException(Exception):
 
 class Client(Thread):
 
-    def __init__(self, id):
+    def __init__(self, id, buffer):
         # transactions is a nested list. Each transaction consists of multipl operations. The beginn operation is marked as a b, teh commit operation as a c and the write operation as a w. The w is followed by the pageid and by the user data seperated by a colon. 
         super().__init__()
         self.transactions = []
         self.id = id
+        self.buffer = buffer
 
     def begin(self):
         '''adds a new sublist (transactionlist) to the transactions list and inserts a b into that list for begin of transaction'''
@@ -41,7 +42,7 @@ class Client(Thread):
         return r+"\n"
 
     def execute(self):
-        ''' Used to yield back the operations of th edifferent transactions  '''
+        ''' Used to yield back the operations of the different transactions  '''
         for transaction in self.transactions:
             for operation in transaction:
                 sec = round(random.random(),2)
