@@ -5,16 +5,21 @@ from multiprocessing import Process
 def main():
     # create a persistence manager
     pm = PersistenceManager()
-    print("Created Persistence Manager...")
+    print("Created Persistence Manager...\n")
 
     # generate a pool of clients with transactions to execute
     clients = createClients(pm)
-    print("Generated Clients...")
+    print("Generated Clients...\n")
 
     # create a Thread Pool to execute clients synchronosly
     for c in clients:
         c.start()
 
+    for c in clients:
+        c.join()
+    print("All clients finished...\n")
+
+    print(pm.buffer)
 
 def createClients(pm):
     '''
