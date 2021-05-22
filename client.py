@@ -1,6 +1,6 @@
 import random
 from time import sleep
-from threading import *
+from threading import Thread
 
 
 class WrongPageIdException(Exception):
@@ -41,7 +41,7 @@ class Client(Thread):
         for i, t in enumerate(self.transactions):
             r = r + " Trans. {}: {} \n".format(i, t)
 
-        return r+"\n"
+        return r
 
     def execute(self):
         ''' Used to yield back the operations of the different transactions  '''
@@ -60,12 +60,12 @@ class Client(Thread):
                 elif operation[0] == "w":
                     # extract information from the operation
                     operation_data = operation.split(":")
-                    print(operation_data)
                     page_id = operation_data[1]
                     data = operation_data[2]
 
                     # execute the write function of the persistence manager using the collected data
                     self.pm.write(ta_id, page_id, data)
+                    print("clinet-{} - ta_id: {}, page id: {}, data: {}".format(self.id, ta_id, page_id, data))
 
                 elif operation[0] == "c":
                     # commit the transaction

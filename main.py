@@ -11,6 +11,11 @@ def main():
     clients = createClients(pm)
     print("Generated Clients...\n")
 
+    print("################## Clients ##################")
+    for c in clients:
+        print(c)
+    print("############################################\n")
+
     # create a Thread Pool to execute clients synchronosly
     for c in clients:
         c.start()
@@ -19,7 +24,7 @@ def main():
         c.join()
     print("All clients finished...\n")
 
-    print(pm.buffer)
+    # TODO: what happens next? o.O
 
 def createClients(pm):
     '''
@@ -30,6 +35,12 @@ def createClients(pm):
     c1.write(1, "Hans Peter")
     c1.write(2, "Berta Klausen")
     c1.write(2, "Celine Mainke")
+    c1.commit()
+
+    c1.begin()
+    c1.write(1, "Klaus Müller")
+    c1.write(2, "Peter parker")
+    c1.write(2, "Tony Stark")
     c1.commit()
 
     c2 = Client(2,pm)
