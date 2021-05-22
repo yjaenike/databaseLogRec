@@ -8,7 +8,7 @@ def main():
     print("Created Persistence Manager...")
 
     # generate a pool of clients with transactions to execute
-    clients = createClients()
+    clients = createClients(pm)
     print("Generated Clients...")
 
     # create a Thread Pool to execute clients synchronosly
@@ -16,25 +16,25 @@ def main():
         c.start()
 
 
-def createClients():
+def createClients(pm):
     '''
     This function is used to create the different clients and give them back in a list 
     '''
-    c1 = Client(1)
+    c1 = Client(1,pm)
     c1.begin()
     c1.write(1, "Hans Peter")
     c1.write(2, "Berta Klausen")
     c1.write(2, "Celine Mainke")
     c1.commit()
 
-    c2 = Client(2)
+    c2 = Client(2,pm)
     c2.begin()
     c2.write(1, "Alex Bayer")
     c2.write(2, "Mads Höfer")
     c2.write(2, "Cornelia Hansen")
     c2.commit()
 
-    c3 = Client(3)
+    c3 = Client(3,pm)
     c3.begin()
     c3.write(1, "Wiebke Tomsen")
     c3.write(2, "Rieke Mayer")
