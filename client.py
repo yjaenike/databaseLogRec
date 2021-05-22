@@ -9,18 +9,28 @@ class Client():
         self.id = id
 
     def begin(self):
+        '''adds a new sublist (transactionlist) to the transactions list and inserts a b into that list for begin of transaction'''
         self.transactions.append(["b"])
 
     def write(self,page, data):
+        ''' writes a write entry to the latest transaction including the pageid it will be written to and the data it wants to write seperated by colons'''
         self.transactions[-1].append("w:{}:{}".format(page,data))
 
     def commit(self):
+        ''' adds a c to the last transaction to signal a commit, endling of that transaction.'''
         self.transactions[-1].append("c")
 
     def __str__(self):
-        return str(self.transactions)
+
+        r = "Client id={}\n".format(self.id)
+        r = r + " # of trans: " + str(len(self.transactions))+"\n"
+        for i, t in enumerate(self.transactions):
+            r = r + " Trans. {}: {} \n".format(i, t)
+
+        return r+"\n"
 
     def execute_transactions(self):
+        ''' Used to yield back the operations of th edifferent transactions  '''
         for transaction in self.transactions:
             for operation in transaction:
                 sec = round(random.random(),2)
@@ -43,6 +53,8 @@ def main():
     c.write(2, "x")
     c.write(3, "z")
     c.commit()
+
+    print(c)
 
     for o in c.execute_transactions():
         pass
