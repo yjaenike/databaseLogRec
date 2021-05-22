@@ -37,7 +37,7 @@ class PersistenceManager:
     next_transaction_id: int = 0
     next_lsn: int = 0
 
-    running_transactions: Dict[int, List[int]]
+    running_transactions: Dict[int, List[int]] = {}
 
     def __new__(cls):
         # singleton
@@ -50,6 +50,8 @@ class PersistenceManager:
         :return: transaction id
         """
         self.next_transaction_id += 1
+
+        self.running_transactions[self.next_transaction_id] = []
         return self.next_transaction_id
 
     def commit(self, ta_id: int) -> bool:
@@ -57,7 +59,16 @@ class PersistenceManager:
         :param ta_id: transaction id
         :return: true if successful
         """
-        pass
+        # commit pages and clean from running_transactions
+        for page_id in self.running_transactions[ta_id]:
+            self.buffer[page_id].commit(self.next_lsn)
+        self.running_transactions.pop(ta_id)
+
+        # write log
+        self.__write_log_entry_eot(self.next_lsn, ta_id)
+
+        # increment lsn
+        self.next_lsn += 1
 
     def write(self, ta_id: int, page_id: int, data: str):
         """
@@ -75,6 +86,10 @@ class PersistenceManager:
         else:
             self.buffer[page_id].write(self.next_lsn, data)
 
+        # remember affected pages for this transaction
+        self.running_transactions[ta_id].append(page_id)
+
+        # increment lsn
         self.next_lsn += 1
 
     @staticmethod
@@ -86,11 +101,18 @@ class PersistenceManager:
         except FileNotFoundError:
             print('File does not exist')
 
+    def __write_log_entry_eot(self, lsn: int, ta_id: int):
+        log_entry = f"{lsn},{ta_id},EOT\n"
+        self.__write_log_entry(log_entry)
+
+    def __write_log_entry_data(self, lsn: int, ta_id: int, page_id: int, user_data: str):
+        log_entry = f"{lsn},{ta_id},{page_id},{user_data}\n"
+        self.__write_log_entry(log_entry)
+
     @staticmethod
-    def __write_log_entry_data(lsn: int, ta_id: int, page_id: int, user_data: str):
+    def __write_log_entry(log_entry: str):
         try:
             f = open('log.txt', 'a')
-            log_entry = f"{lsn},{ta_id},{page_id},{user_data}\n"
             f.write(log_entry)
             f.close()
         except FileNotFoundError:
