@@ -4,7 +4,7 @@ from time import sleep
 class Client():
 
     def __init__(self, id):
-        # transactions is a nested list:
+        # transactions is a nested list. Each transaction consists of multipl operations. The beginn operation is marked as a b, teh commit operation as a c and the write operation as a w. The w is followed by the pageid and by the user data seperated by a colon. 
         self.transactions = []
         self.id = id
 
