@@ -34,6 +34,7 @@ class Page:
 class PersistenceManager:
     _instance = None
     buffer: Dict[int, Page] = {}
+    buffer_size = 5
     next_transaction_id: int = 0
     next_lsn: int = 0
 
@@ -43,6 +44,7 @@ class PersistenceManager:
         # singleton
         if cls._instance is None:
             cls._instance = super(PersistenceManager, cls).__new__(cls)
+            cls.__clear_log_entry()
         return cls._instance
 
     def begin_transaction(self) -> int:
@@ -59,6 +61,7 @@ class PersistenceManager:
         :param ta_id: transaction id
         :return: true if successful
         """
+
         # commit pages and clean from running_transactions
         for page_id in self.running_transactions[ta_id]:
             self.buffer[page_id].commit(self.next_lsn)
@@ -92,6 +95,35 @@ class PersistenceManager:
         # increment lsn
         self.next_lsn += 1
 
+        if self.check_buffer():
+            self.clear_buffer()
+
+    def check_buffer(self):
+        ''' returns True if the buffer size is bigger then allowed buffer size, else False'''
+        return len(self.buffer) > self.buffer_size
+    
+    def clear_buffer(self):
+        '''
+        Runners over the list of running transactions to collect all pages that are currently in use.#
+        Then we back cekc each page in th ebuffer if it is currently in use and if not, write to disc and delete it from buffer.
+        '''
+        running_transactions = self.running_transactions
+
+        # get a list of all pages taht are currently not done
+        all_pages_running = []
+        for _, pages in running_transactions.items():
+            for page in pages:
+                all_pages_running.append(page)
+        
+        # run over each page in buffer and check if it need to be there
+        for page_id, page in list(self.buffer.items()):
+            if not page_id in all_pages_running:
+                print("deleted page from buffer: ",page_id)
+                self.__write_data_to_file(page.lsn, page_id, page.user_data)
+                self.buffer.pop(page_id)
+        
+        
+
     @staticmethod
     def __write_data_to_file(lsn, page_id, data):
         try:
@@ -114,6 +146,16 @@ class PersistenceManager:
         try:
             f = open('log.txt', 'a')
             f.write(log_entry)
+            f.close()
+        except FileNotFoundError:
+            print('File does not exist')
+    
+    @staticmethod
+    def __clear_log_entry():
+        ''' Clears the log.txt file on startup '''
+        try:
+            f = open('log.txt', 'w')
+            f.write("")
             f.close()
         except FileNotFoundError:
             print('File does not exist')

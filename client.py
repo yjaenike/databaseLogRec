@@ -12,7 +12,7 @@ class UnknownOperationException(Exception):
 class Client(Thread):
 
     def __init__(self, id, pm):
-        # transactions is a nested list. Each transaction consists of multipl operations. The beginn operation is marked as a b, teh commit operation as a c and the write operation as a w. The w is followed by the pageid and by the user data seperated by a colon. 
+        '''ransactions is a nested list. Each transaction consists of multipl operations. The beginn operation is marked as a b, teh commit operation as a c and the write operation as a w. The w is followed by the pageid and by the user data seperated by a colon. '''
         super().__init__()
         self.transactions = []
         self.id = id

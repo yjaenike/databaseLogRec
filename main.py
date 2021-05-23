@@ -34,13 +34,16 @@ def createClients(pm):
     c1.begin()
     c1.write(1, "Hans Peter")
     c1.write(2, "Berta Klausen")
-    c1.write(2, "Celine Mainke")
+    c1.write(3, "Celine Mainke")
+    c1.write(4, "Klaus Müller")
+    c1.write(5, "Peter parker")
+    c1.write(6, "Tony Stark")
     c1.commit()
 
     c1.begin()
-    c1.write(1, "Klaus Müller")
-    c1.write(2, "Peter parker")
-    c1.write(2, "Tony Stark")
+    c1.write(7, "Klaus Müller")
+    c1.write(8, "Peter parker")
+    c1.write(9, "Tony Stark")
     c1.commit()
 
     c2 = Client(2,pm)
@@ -54,7 +57,7 @@ def createClients(pm):
     c3.begin()
     c3.write(1, "Wiebke Tomsen")
     c3.write(2, "Rieke Mayer")
-    c3.write(2, "Kim Tran")
+    c3.write(2, "Kim Berly")
     c3.commit()
 
     clients = [c1,c2,c3]
