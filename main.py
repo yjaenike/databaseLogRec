@@ -24,6 +24,8 @@ def main():
         c.join()
     print("All clients finished...\n")
 
+    print(pm.buffer)
+
     # TODO: what happens next? o.O
 
 def createClients(pm):
@@ -60,7 +62,30 @@ def createClients(pm):
     c3.write(2, "Kim Berly")
     c3.commit()
 
-    clients = [c1,c2,c3]
+    c4 = Client(4,pm)
+    c4.begin()
+    c4.write(1, "Hans Peter")
+    c4.write(2, "Berta Klausen")
+    c4.write(3, "Celine Mainke")
+    c4.write(4, "Klaus Müller")
+    c4.write(5, "Peter parker")
+    c4.write(6, "Tony Stark")
+    c4.commit()
+
+    c4.begin()
+    c4.write(7, "Klaus Müller")
+    c4.write(8, "Peter parker")
+    c4.write(9, "Tony Stark")
+    c4.commit()
+
+    c5 = Client(5,pm)
+    c5.begin()
+    c5.write(1, "Alex Bayer")
+    c5.write(2, "Mads Höfer")
+    c5.write(2, "Cornelia Hansen")
+    c5.commit()
+
+    clients = [c1,c2,c3,c4,c5]
 
     return clients
 

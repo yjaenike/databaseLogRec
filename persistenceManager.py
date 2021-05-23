@@ -118,17 +118,27 @@ class PersistenceManager:
         # run over each page in buffer and check if it need to be there
         for page_id, page in list(self.buffer.items()):
             if not page_id in all_pages_running:
-                print("deleted page from buffer: ",page_id)
+                print("(Pers-Mgr) Written page {} to storage.".format(page_id))
                 self.__write_data_to_file(page.lsn, page_id, page.user_data)
                 self.buffer.pop(page_id)
+            
+            # if buffer size is okay again, stop cleaning up
+            # TODO: is this right? I'm not sure but from my intuition we want to keep as many page sin buffer as possible?
+            if not self.check_buffer():
+                break
         
+        # give back new buffer size
+        print("(Pers-Mgr) New buffer size: {}".format(len(self.buffer)))
         
 
     @staticmethod
     def __write_data_to_file(lsn, page_id, data):
+        
+        content = str(lsn)+", "+data
+
         try:
             f = open('pages/page_{}.txt'.format(page_id), "w")
-            f.write(data)
+            f.write(content)
             f.close()
         except FileNotFoundError:
             print('File does not exist')
