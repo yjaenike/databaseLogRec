@@ -51,10 +51,17 @@ class PersistenceManager:
         """
         :return: transaction id
         """
+        ta_id = self.next_transaction_id
+        self.running_transactions[ta_id] = []
+
+        # write log
+        self.__write_log_entry_bot(self.next_lsn, ta_id)
+
+        # increment lsn
+        self.next_lsn += 1
         self.next_transaction_id += 1
 
-        self.running_transactions[self.next_transaction_id] = []
-        return self.next_transaction_id
+        return ta_id
 
     def commit(self, ta_id: int) -> bool:
         """
@@ -105,7 +112,7 @@ class PersistenceManager:
     def clear_buffer(self):
         '''
         Runners over the list of running transactions to collect all pages that are currently in use.#
-        Then we back cekc each page in th ebuffer if it is currently in use and if not, write to disc and delete it from buffer.
+        Then we back check each page in the buffer if it is currently in use and if not, write to disc and delete it from buffer.
         '''
         running_transactions = self.running_transactions
 
@@ -119,7 +126,7 @@ class PersistenceManager:
         for page_id, page in list(self.buffer.items()):
             if not page_id in all_pages_running:
                 print("(Pers-Mgr) Written page {} to storage.".format(page_id))
-                self.__write_data_to_file(page.lsn, page_id, page.user_data)
+                write_data_to_file(page.lsn, page_id, page.user_data)
                 self.buffer.pop(page_id)
             
             # if buffer size is okay again, stop cleaning up
@@ -129,22 +136,13 @@ class PersistenceManager:
         
         # give back new buffer size
         print("(Pers-Mgr) New buffer size: {}".format(len(self.buffer)))
-        
-
-    @staticmethod
-    def __write_data_to_file(lsn, page_id, data):
-        
-        content = str(lsn)+", "+data
-
-        try:
-            f = open('pages/page_{}.txt'.format(page_id), "w")
-            f.write(content)
-            f.close()
-        except FileNotFoundError:
-            print('File does not exist')
 
     def __write_log_entry_eot(self, lsn: int, ta_id: int):
         log_entry = f"{lsn},{ta_id},EOT\n"
+        self.__write_log_entry(log_entry)
+
+    def __write_log_entry_bot(self, lsn: int, ta_id: int):
+        log_entry = f"{lsn},{ta_id},BOT\n"
         self.__write_log_entry(log_entry)
 
     def __write_log_entry_data(self, lsn: int, ta_id: int, page_id: int, user_data: str):
@@ -169,6 +167,26 @@ class PersistenceManager:
             f.close()
         except FileNotFoundError:
             print('File does not exist')
+
+
+def write_data_to_file(lsn, page_id, data):
+    content = str(lsn)+", "+data
+    try:
+        f = open('pages/page_{}.txt'.format(page_id), "w")
+        f.write(content)
+        f.close()
+    except FileNotFoundError:
+        print('File does not exist')
+
+
+def read_page(page_id) -> Page:
+    try:
+        f = open('pages/page_{}.txt'.format(page_id), "r")
+        page = Page.from_page_file(f.read())
+        f.close()
+        return page
+    except FileNotFoundError:
+        None
 
 
 def main():
