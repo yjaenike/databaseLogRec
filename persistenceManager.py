@@ -37,6 +37,7 @@ class PersistenceManager:
     next_transaction_id: int = 0
     next_lsn: int = 0
 
+    # storing currently running transactions: transaction id as key, list of related pages as value
     running_transactions: Dict[int, List[int]] = {}
 
     def __new__(cls):
