@@ -18,7 +18,6 @@ class Page:
         self.lsn = lsn
         self.dirty = False
 
-    # TODO: kann weg?
     @classmethod
     def from_page_file(cls, file: str):
         """
@@ -130,7 +129,6 @@ class PersistenceManager:
                 self.buffer.pop(page_id)
             
             # if buffer size is okay again, stop cleaning up
-            # TODO: is this right? I'm not sure but from my intuition we want to keep as many page sin buffer as possible?
             if not self.check_buffer():
                 break
         
